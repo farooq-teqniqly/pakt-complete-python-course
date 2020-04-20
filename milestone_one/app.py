@@ -45,7 +45,6 @@ def run():
 
         if compare_strings_safe(user_input, "q"):
             print("Goodbye.")
-            break
 
         elif compare_strings_safe(user_input, "l"):
             print(list_movies())
