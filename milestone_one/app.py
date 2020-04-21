@@ -1,3 +1,6 @@
+from typing import List
+from movie import Movie
+
 """
 Enter 'a' to add a movie.
 Enter 'l' to list movies.
@@ -6,7 +9,7 @@ Enter 'r' to remove a movie.
 Enter 'q' to quit.
 """
 
-movie_list: list = []
+movie_list: List[Movie] = []
 
 USAGE: str = """Enter 'a' to add a movie.
     Enter 'l' to list movies.
@@ -15,21 +18,21 @@ USAGE: str = """Enter 'a' to add a movie.
     Enter 'q' to quit."""
 
 
-def list_movies() -> str:
+def list_movies() -> List[Movie]:
     return movie_list
 
 
-def find_movie(title: str) -> list:
-    return list(filter(lambda t: compare_strings_safe(t, title), movie_list))
+def find_movie_by_title(title: str) -> List[Movie]:
+    return list(filter(lambda t: compare_strings_safe(t.title, title), movie_list))
 
 
-def add_movie(title: str) -> None:
-    movie_list.append(title)
+def add_movie(movie: Movie) -> None:
+    movie_list.append(movie)
 
 
 def remove_movie(title: str) -> None:
     for index, movie in enumerate(movie_list):
-        if compare_strings_safe(title, movie):
+        if compare_strings_safe(title, movie.title):
             del movie_list[index]
 
 
@@ -47,15 +50,29 @@ def run():
             print("Goodbye.")
 
         elif compare_strings_safe(user_input, "l"):
-            print(list_movies())
+            movies = list_movies()
+
+            if not movies:
+                print("No movies.")
+            else:
+                for movie in list_movies():
+                    print(movie)
 
         elif compare_strings_safe(user_input, "f"):
             title: str = input("Movie title: ")
-            print(find_movie(title))
+
+            for movie in find_movie_by_title(title):
+                print(movie)
 
         elif compare_strings_safe(user_input, "a"):
-            title: str = input("Movie title: ")
-            add_movie(title)
+
+            movie_data = []
+
+            while len(movie_data) < 3:
+                title: str = input("Enter the movie's title, director, and release date as a comma separated list: ")
+                movie_data = title.split(",")
+
+            add_movie(Movie(movie_data[0], movie_data[1], movie_data[2]))
             print(f"Movie '{title}' added.")
 
         elif compare_strings_safe(user_input, "r"):
