@@ -6,9 +6,9 @@ Enter 'r' to remove a movie.
 Enter 'q' to quit.
 """
 
-movie_list: [list] = []
+movie_list: list = []
 
-USAGE: [str] = """Enter 'a' to add a movie.
+USAGE: str = """Enter 'a' to add a movie.
     Enter 'l' to list movies.
     Enter 'f' to find a movie.
     Enter 'r' to remove a movie.
@@ -23,7 +23,7 @@ def find_movie(title: str) -> list:
     return list(filter(lambda t: compare_strings_safe(t, title), movie_list))
 
 
-def add_movie(title: [str]) -> None:
+def add_movie(title: str) -> None:
     movie_list.append(title)
 
 
