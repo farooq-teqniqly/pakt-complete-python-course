@@ -1,0 +1,2 @@
+run = "python3 scratch/scratch1.py"
+language = "python3"
