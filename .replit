@@ -1,2 +1,2 @@
-run = "python3 scratch/scratch2.py"
+run = "python3 scratch/scratch4.py"
 language = "python3"
