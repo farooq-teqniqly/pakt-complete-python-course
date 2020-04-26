@@ -6,6 +6,7 @@ from milestone_two.utils.dataaccess.models.vehicle_variable import VehicleVariab
 
 USAGE = """
     - 'l' to list all makes
+    - 'um' to update/insert makes
     - 'v' to list vehicle variables
     - 'q' to quit
 """
@@ -13,6 +14,18 @@ USAGE = """
 
 def list_makes(db: FileDatabase) -> List[Make]:
     return list(db.get_makes())
+
+
+def update_make(db: FileDatabase, name: str) -> Make:
+    return db.upsert_make(name)
+
+
+def update_make(db: FileDatabase, name: str) -> Make:
+    return db.upsert_make(name)
+
+
+def remove_make(db: FileDatabase, name: str, version: int) -> Make:
+    return db.remove_make(name, version)
 
 
 def list_vehicle_variables(db: FileDatabase) -> List[VehicleVariable]:
@@ -30,6 +43,13 @@ def run(db: FileDatabase):
             print(list_makes(db))
         elif user_input.lower() == "v":
             print(list_vehicle_variables(db))
+        elif user_input.lower() == "um":
+            make_to_update_name = input("Enter the name of the make: ")
+            print(update_make(db, make_to_update_name))
+        elif user_input.lower() == "rm":
+            make_to_remove_name = input("Enter the name of the make: ")
+            make_to_remove_version = input("Enter the version number: ")
+            print(remove_make(db, make_to_remove_name, int(make_to_remove_version)))
         else:
             print(USAGE)
 
