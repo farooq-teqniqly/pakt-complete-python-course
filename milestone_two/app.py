@@ -48,7 +48,10 @@ def run(**repos):
 if __name__ == "__main__":
     database_name = "foo"
 
-    os.remove(f"{database_name}.db")
+    try:
+        os.remove(f"{database_name}.db")
+    except FileNotFoundError:
+        pass
 
     db = SQLiteDatabase(
         {
