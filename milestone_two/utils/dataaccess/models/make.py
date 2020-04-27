@@ -7,15 +7,6 @@ class Make:
     def __repr__(self) -> str:
         return f"({self.id}, {self._name}, {self._version})"
 
-    def __eq__(self, other):
-        return (self._name.lower() == other.name.lower()) and (self._version == other.version)
-
-    def __ne__(self, other):
-        return not self.__eq__(other)
-
-    def __hash__(self):
-        return hash(self._name.lower()) ^ hash(self._version)
-
     @property
     def id(self) -> int:
         return self._id
