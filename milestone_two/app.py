@@ -1,63 +1,68 @@
+import os
 from typing import List
 
-from milestone_two.utils.dataaccess.filedatabase.file_database import FileDatabase
 from milestone_two.utils.dataaccess.models.make import Make
 from milestone_two.utils.dataaccess.models.vehicle_variable import VehicleVariable
+from milestone_two.utils.dataaccess.repositories.makes_repository import MakesRepository
+from milestone_two.utils.dataaccess.repositories.vars_repository import VarsRepository
+from milestone_two.utils.dataaccess.sqlitedatabase.sqlite_database import SQLiteDatabase
 
 USAGE = """
-    - 'l' to list all makes
-    - 'um' to update/insert makes
-    - 'v' to list vehicle variables
+    - 'makes list' to list all makes
+    - 'makes show' to show a particular make
+    - 'vars list' to list vehicle variables
     - 'q' to quit
 """
 
 
-def list_makes(db: FileDatabase) -> List[Make]:
-    return list(db.get_makes())
+def list_makes(repo: MakesRepository) -> List[Make]:
+    return list(repo.get_makes())
 
 
-def update_make(db: FileDatabase, name: str) -> Make:
-    return db.upsert_make(name)
+def list_make(repo: MakesRepository, name: str):
+    return repo.get_make(name)
 
 
-def update_make(db: FileDatabase, name: str) -> Make:
-    return db.upsert_make(name)
+def list_vehicle_variables(repo: VarsRepository) -> List[VehicleVariable]:
+    return list(repo.get_vars())
 
 
-def remove_make(db: FileDatabase, name: str, version: int) -> Make:
-    return db.remove_make(name, version)
-
-
-def list_vehicle_variables(db: FileDatabase) -> List[VehicleVariable]:
-    return list(db.get_vehicle_variables())
-
-
-def run(db: FileDatabase):
+def run(**repos):
     while True:
         user_input = input(USAGE)
 
         if user_input.lower() == "q":
             exit(0)
 
-        if user_input.lower() == "l":
-            print(list_makes(db))
-        elif user_input.lower() == "v":
-            print(list_vehicle_variables(db))
-        elif user_input.lower() == "um":
-            make_to_update_name = input("Enter the name of the make: ")
-            print(update_make(db, make_to_update_name))
-        elif user_input.lower() == "rm":
-            make_to_remove_name = input("Enter the name of the make: ")
-            make_to_remove_version = input("Enter the version number: ")
-            print(remove_make(db, make_to_remove_name, int(make_to_remove_version)))
+        if user_input.lower() == "makes list":
+            print(list_makes(repos["makes"]))
+        elif user_input.lower() == "vars list":
+            print(list_vehicle_variables(repos["vars"]))
+        elif user_input.lower() == "makes show":
+            make_name = input("Enter a make name: ")
+            print(list_make(repos["makes"], make_name))
         else:
             print(USAGE)
 
 
 if __name__ == "__main__":
-    run(FileDatabase(
+    database_name = "foo"
+
+    os.remove(f"{database_name}.db")
+
+    db = SQLiteDatabase(
         {
-            "makes": "utils/dataaccess/filedatabase/seed_data/vehicle_makes.json",
-            "vehicle_variables": "utils/dataaccess/filedatabase/seed_data/vehicle_variables.json"
-         }
-    ))
+            "database_name": database_name,
+            "makes": "utils/dataaccess/sqlitedatabase/seed_data/vehicle_makes.json",
+            "vehicle_variables": "utils/dataaccess/sqlitedatabase/seed_data/vehicle_variables.json"
+        }
+    )
+
+    db.load_database()
+
+    repositories = {
+        "makes": MakesRepository(db),
+        "vars": VarsRepository(db)
+    }
+
+    run(**repositories)
