@@ -104,3 +104,13 @@ for i in inventory:
 
 with open("final_inventory.json", "w", encoding="utf8") as writer:
     writer.write(json.dumps(final_inventory))
+
+
+def encode_string_unicode(s: str) -> str:
+    unicode_escaped_string = ""
+
+    for _, ch in enumerate(s):
+        char_code = str(hex(random.choice(range(5000, 5101)))).replace("0x", "\\u")
+        unicode_escaped_string += char_code
+
+    return unicode_escaped_string.encode().decode("unicode-escape")
