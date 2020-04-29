@@ -39,5 +39,33 @@ summary = {i["vehicleIdentificationNumber"]: {
     }
 } for i in vehicle_listings if i["offers"]["seller"].get("aggregateRating") is not None}
 
-pp(summary)
-print(len(summary))
+inventory = dict()
+
+for i in vehicle_listings:
+    if i["offers"]["seller"].get("aggregateRating") is None:
+        continue
+
+    key = encode_dealer_name(i["offers"]["seller"]["name"])
+
+    if not inventory.get(key):
+        inventory[key] = {
+            "seller": {},
+            "offers": []
+        }
+
+    inventory[key]["offers"].append({
+        "make": i["brand"]["name"],
+        "model": i["name"],
+        "price": i["offers"]["price"],
+        "currency": i["offers"]["priceCurrency"],
+        "color": i["color"].lower()
+    })
+
+    inventory[key]["seller"] = {
+        "rating": i["offers"]["seller"]["aggregateRating"]["ratingValue"],
+        "reviews": i["offers"]["seller"]["aggregateRating"]["reviewCount"]
+    }
+
+    inventory[key]["offerCount"] = len(inventory[key]["offers"])
+
+pp(inventory)
