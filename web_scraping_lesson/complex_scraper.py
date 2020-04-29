@@ -1,6 +1,7 @@
 import json
 from hashlib import md5
-from pprint import pprint as pp
+from os import listdir
+from os.path import dirname, join
 
 from bs4 import BeautifulSoup
 from stringcase import snakecase
@@ -14,17 +15,23 @@ def encode_dealer_name(name: str) -> str:
             .hexdigest())
 
 
-with open("complex.html", "r") as reader:
-    html = reader.read()
+html_file_dir = join(dirname(__file__), "html_files")
+html_files = [join(html_file_dir, f) for f in listdir(html_file_dir)]
 
-soup = BeautifulSoup(html, "html.parser")
-scripts = [s for s in soup.select('[type="application/ld+json"]') if not s.attrs.get("id")]
-vehicle_listings = json.loads(scripts[0].string)
+complete_vehicle_listings = []
 
-with open("vehicle_listings.json", "w", encoding="utf8") as writer:
-    writer.write(str(vehicle_listings))
+for html_file in html_files:
+    with open(html_file, "r") as reader:
+        html = reader.read()
 
-summary = {i["vehicleIdentificationNumber"]: {
+    soup = BeautifulSoup(html, "html.parser")
+    scripts = [s for s in soup.select('[type="application/ld+json"]') if not s.attrs.get("id")]
+    vehicle_listings = json.loads(scripts[0].string)
+
+    for vehicle_listing in vehicle_listings:
+        complete_vehicle_listings.append(vehicle_listing)
+
+vehicles = {i["vehicleIdentificationNumber"]: {
     "offer": {
         "make": i["brand"]["name"],
         "model": i["name"],
@@ -37,11 +44,11 @@ summary = {i["vehicleIdentificationNumber"]: {
         "rating": i["offers"]["seller"]["aggregateRating"]["ratingValue"],
         "reviews": i["offers"]["seller"]["aggregateRating"]["reviewCount"]
     }
-} for i in vehicle_listings if i["offers"]["seller"].get("aggregateRating") is not None}
+} for i in complete_vehicle_listings if i["offers"]["seller"].get("aggregateRating") is not None}
 
 inventory = dict()
 
-for i in vehicle_listings:
+for i in complete_vehicle_listings:
     if i["offers"]["seller"].get("aggregateRating") is None:
         continue
 
@@ -68,4 +75,5 @@ for i in vehicle_listings:
 
     inventory[key]["offerCount"] = len(inventory[key]["offers"])
 
-pp(inventory)
+with open("inventory.json", "w", encoding="utf8") as writer:
+    writer.write(json.dumps(inventory))
