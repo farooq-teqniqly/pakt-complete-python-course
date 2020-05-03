@@ -1,0 +1,13 @@
+{% extends "base.jinja2" %}
+
+{% block content %}
+<h1>Posts</h1>
+<ul>
+    {% if not posts %}
+        <a href="{{ url_for("add_post") }}">Add some posts!</a>
+    {% endif %}
+    {% for id, post in posts.items() %}
+        <li><a href="{{ url_for("get_post", post_id=id) }}">{{ post["title"] }}</a></li>
+    {% endfor %}
+</ul>
+{% endblock %}
