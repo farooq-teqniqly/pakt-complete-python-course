@@ -14,8 +14,8 @@ def home():
 def get_post(post_id: int):
     post = db.posts.get(post_id)
 
-    if post is None:
-        return render_template("404.html")
+    if not post:
+        return render_template("404.html", msg="The post you requested was not found.")
 
     return render_template("post.html", post=post)
 
