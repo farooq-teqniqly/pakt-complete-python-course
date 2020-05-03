@@ -15,9 +15,11 @@ def get_post(post_id: int):
     post = db.posts.get(post_id)
 
     if not post:
-        return render_template("404.html", msg="The post you requested was not found.")
+        return render_template(
+            "404.jinja2", msg="The post you requested was not found."
+        )
 
-    return render_template("post.html", post=post)
+    return render_template("post.jinja2", post=post)
 
 
 if __name__ == "__main__":
