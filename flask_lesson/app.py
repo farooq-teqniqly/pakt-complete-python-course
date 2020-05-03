@@ -27,10 +27,10 @@ def new_post():
     return render_template("new_post.jinja2")
 
 
-@app.route("/posts/add")
+@app.route("/posts/add", methods=["post"])
 def add_post():
-    title = request.args.get("title")
-    content = request.args.get("content")
+    title = request.form.get("title")
+    content = request.form.get("content")
     post_id = len(db.posts)
 
     db.posts[post_id] = {"id": post_id, "title": title, "content": content}
