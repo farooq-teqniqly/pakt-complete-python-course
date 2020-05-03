@@ -1,23 +1,29 @@
+import time
 from os import getenv
-import requests
-from babel.numbers import format_currency
+from call_api_lesson.open_exchange_client import OpenExchangeClient, Currency
 from dotenv import load_dotenv
+import logging
+
+logger = logging.getLogger("open_exchange_client_app")
+log_entry_format = (
+    "%(asctime)s %(levelname)-8s %(name)s [%(filename)s:%(lineno)d] %(message)s"
+)
+logging.basicConfig(level=logging.DEBUG, format=log_entry_format)
+logging.Formatter.converter = time.gmtime
 
 settings = load_dotenv(".env")
 api_key = getenv("API_KEY")
 
-ENDPOINT_FORMAT = (
-    "https://openexchangerates.org/api/{0}.json?app_id={1}&prettyprint=false"
-)
+client = OpenExchangeClient(api_key)
 
-response = requests.get(ENDPOINT_FORMAT.format("latest", api_key))
-rates = response.json()["rates"]
+try:
+    while True:
+        convert_to_str = input("Enter the currency to convert to: ")
+        amount_str = input("Enter the amount: ")
 
-us_amt: float = 1.00
-uk_amt: float = us_amt * rates["JPY"]
+        convert_to = Currency[convert_to_str]
+        amount = float(amount_str)
 
-
-print(
-    f"{format_currency(us_amt, 'USD', locale='en_US')} "
-    f"= {format_currency(uk_amt, 'JPY', locale='en_US', decimal_quantization=False)}"
-)
+        print(client.convert(convert_to, amount))
+except KeyboardInterrupt:
+    print("Bye.")
