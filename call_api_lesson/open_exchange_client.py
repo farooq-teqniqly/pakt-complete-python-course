@@ -1,9 +1,11 @@
 from enum import Enum
 from typing import Dict
 from babel.numbers import format_currency
+from cachetools import cached, TTLCache
 
 import logging
 import requests
+import time
 
 logger = logging.getLogger("open_exchange_client")
 
@@ -27,18 +29,22 @@ class OpenExchangeClient:
 
     def __init__(self, api_key: str):
         self._api_key = api_key
-        self._cache: Dict[str, float] = None
         self._locale = "en_US"
 
-    def convert(self, convert_to: Currency, amount: float):
-        if not self._cache:
-            logger.debug("Cache miss.")
-            response = requests.get(
-                OpenExchangeClient.ENDPOINT_FORMAT.format("latest", self._api_key)
-            )
-            self._cache = response.json()["rates"]
+    @cached(cache=TTLCache(maxsize=1024, ttl=3600))
+    def _get_latest_rates(self) -> Dict[str, float]:
+        response = requests.get(
+            OpenExchangeClient.ENDPOINT_FORMAT.format("latest", self._api_key)
+        )
 
-        convert_to_amount = amount * self._cache[convert_to.value]
+        return response.json()["rates"]
+
+    def convert(self, convert_to: Currency, amount: float) -> str:
+        start = time.time()
+        convert_to_amount = amount * self._get_latest_rates()[convert_to.value]
+        end = time.time()
+
+        logger.debug(f"Convert ran in {end - start} seconds.")
 
         return (
             f"{format_currency(amount, 'USD', locale=self._locale)} "
