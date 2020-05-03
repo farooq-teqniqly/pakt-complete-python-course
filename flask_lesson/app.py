@@ -36,5 +36,11 @@ def add_post():
     return render_template("new_post.jinja2")
 
 
+@app.route("/posts/delete/<int:post_id>")
+def delete_post(post_id: int):
+    db.posts.pop(post_id)
+    return redirect(url_for("home"))
+
+
 if __name__ == "__main__":
     app.run(debug=True)
