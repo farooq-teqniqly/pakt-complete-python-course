@@ -7,7 +7,7 @@ app = Flask(__name__)
 
 @app.route("/")
 def home():
-    return render_template("welcome.html")
+    return render_template("posts_list.jinja2", posts=db.posts)
 
 
 @app.route("/posts/<int:post_id>")
@@ -31,7 +31,7 @@ def add_post():
         post_id = len(db.posts)
         db.posts[post_id] = {"id": post_id, "title": title, "content": content}
 
-        return redirect(url_for("get_post", post_id=post_id))
+        return redirect(url_for("home"))
 
     return render_template("new_post.jinja2")
 
